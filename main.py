@@ -1,17 +1,52 @@
 import tkinter as tk
+import random
 
 class LivingEntity:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.alive = True
+    def __init__(self, location, cloning_rate, death_rate, mutation_rate):
+        self.location = location
+        self.isDead = False
+        self.cloning_rate = cloning_rate
+        self.death_rate = death_rate
+        self.mutation_rate = mutation_rate
+        self.color = f"#{int(cloning_rate/3.95):02x}{int(death_rate/3.95):02x}{int(mutation_rate/3.95):02x}"
 
-    def move(self, dx, dy):
-        self.x += dx
-        self.y += dy
+    
 
-    def death(self):
-        self.alive = False
+    def try_clone(self):
+        if self.isDead: return 
+        if random.randint(0,1000) < self.cloning_rate:
+            newLocation = random.choice(UsedSpace)
+            UsedSpace.remove(newLocation)
+
+            newEntity = LivingEntity(
+                newLocation,
+                max(0, min(1000, self.cloning_rate + random.randint(-self.mutation_rate, self.mutation_rate))),
+                max(0, min(1000, self.death_rate + random.randint(-self.mutation_rate, self.mutation_rate))),
+                max(0, min(1000, self.mutation_rate + random.randint(-self.mutation_rate, self.mutation_rate)))
+            )
+            entities.append(newEntity)
+        return 
+    
+    def try_death(self):
+        if random.randint(0,1000) < self.death_rate:
+            self.isDead = True
+            entities.remove(self)
+            UsedSpace.append(self.location)
+        
+
+    def update(self):
+        self.try_death()
+        self.try_clone()
+
+
+global UsedSpace
+global count
+global entities 
+
+newUsedSpace = [(x, y) for x in range(1001) for y in range(1001)]
+count = 0
+UsedSpace = newUsedSpace.copy()
+
 
 
 root = tk.Tk()
@@ -19,24 +54,22 @@ root.title("Life Simulator")
 
 w,h = 1600,1020
 
-canvas = tk.Canvas(root, width=w, height=h, bg="black")
-canvas.pack()
+canvas = tk.Canvas(root, width=1000, height=1000, bg="black")
+canvas.pack(side="left")
 
+canvas2 = tk.Canvas(root, width=600, height=1000, bg="gray")
+canvas2.pack(side="right")
 
-# Schwarzer Hintergrund
-img = tk.PhotoImage(width=w, height=h)
-canvas.create_image((w/2, h/2), image=img, state="normal")
+img = tk.PhotoImage(width=1000, height=1000)
+canvas.create_image((500, 500), image=img, state="normal")
 
-# Ganze Fläche schwarz setzen
 img.put("black", to=(0, 0, w, h))
 
-def set_pixel(x, y, color):
-  img.put(color, (x, y))
 
-def on_click(event):
-  # Beispiel: roter Pixel beim Klicken
-  set_pixel(event.x, event.y, "#ff0000")
+def update():
 
-canvas.bind("<Button-1>", on_click)
+
+    count += 1
+    root.after(100, update)
 
 root.mainloop()
