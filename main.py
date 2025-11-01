@@ -1,5 +1,7 @@
 import tkinter as tk
 import random
+from multiprocessing import Pool, cpu_count
+
 
 class LivingEntity:
     def __init__(self, location, cloning_rate, death_rate, mutation_rate):
@@ -14,7 +16,7 @@ class LivingEntity:
     
 
     def try_clone(self):
-        global count, entities, unusedSpace, spawnrate, img
+        global count, entities, unusedSpace, spawnrate, img, new_entities
         if not unusedSpace:
             return 
         if self.isDead: return 
@@ -25,22 +27,18 @@ class LivingEntity:
             newEntity = LivingEntity(
                 newLocation,
                 max(0, min(1000, self.cloning_rate + random.randint(-self.mutation_rate, self.mutation_rate))),
-                max(0, min(1000, self.death_rate + random.randint(-self.mutation_rate, self.mutation_rate))),
-                max(0, min(1000, self.mutation_rate + random.randint(-self.mutation_rate, self.mutation_rate)))
+                max(1, min(1000, self.death_rate + random.randint(-self.mutation_rate, self.mutation_rate))),
+                max(1, min(1000, self.mutation_rate + random.randint(-self.mutation_rate, self.mutation_rate)))
             )
-            entities.append(newEntity)
+            new_entities.append(newEntity)
         return 
-    
-    def try_death(self):
-        global count, entities, unusedSpace, spawnrate, img
-        if random.randint(0,1000) < self.death_rate:
-            self.isDead = True
-            entities.remove(self)
-            unusedSpace.append(self.location)
-        
 
     def update(self):
-        self.try_death()
+        global count, entities, unusedSpace, spawnrate, img, new_entities
+        if random.randint(0,1000) < self.death_rate:
+            self.isDead = True
+            new_entities.remove(self)
+            unusedSpace.append(self.location)
         self.try_clone()
 
 
@@ -50,6 +48,7 @@ newUsedSpace = [(x, y) for x in range(1001) for y in range(1001)]
 unusedSpace = newUsedSpace.copy()
 count = 0
 entities = []
+new_entities = []
 spawnrate = 10
 
 
@@ -83,11 +82,14 @@ def countColors():
 
 
 
+def process_entity(entity):
+    entity.update()
+    return entity
 
 
 def update():
     
-    global count, entities, unusedSpace, spawnrate, img
+    global count, entities, unusedSpace, spawnrate, img, new_entities
     print(f"Entities: {len(entities)} | Unused Space: {len(unusedSpace)} | Color: {countColors()} | Count: {count}")
     img.put("black", to=(0, 0, w, h))
     for entity in entities:
@@ -103,8 +105,15 @@ def update():
             mutation_rate=10
         )
         entities.append(newEntity)
+    a = 0 
+    m = len(entities)
+    new_entities = entities.copy()
     for entity in entities:
+        i = round((a/m)*100)
+        a+=1
+        print(f"Fortschritt: {i}%", end="\r", flush=True)
         entity.update()
+    entities = new_entities.copy()
 
     count += 1
 
