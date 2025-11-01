@@ -1,7 +1,5 @@
-import java.util.List;
-import java.util.ArrayList;
+
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JPanel;

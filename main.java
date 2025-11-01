@@ -1,10 +1,4 @@
-import java.util.List;
-import java.util.ArrayList;
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import javax.swing.JPanel;
+
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
@@ -20,7 +14,7 @@ public class main {
         frame.pack();
         frame.setVisible(true);
 
-        new Timer(50, e -> {
+        new Timer(1, e -> {
             world.update();
             renderer.repaint();
             System.out.printf("Entities: %d | Free: %d%n",

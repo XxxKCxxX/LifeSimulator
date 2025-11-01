@@ -1,7 +1,7 @@
 import java.util.List;
-import java.util.ArrayList;
 import java.awt.Color;
 import java.awt.Point;
+import java.util.Random;
 
 public class LivingEntity {
     public Point location;
@@ -44,6 +44,6 @@ public class LivingEntity {
     }
 
     private int clamp(int val) {
-        return Math.max(1, Math.min(1000, val));
+        return Math.max(5, Math.min(1000, val));
     }
 }
