@@ -3,20 +3,24 @@ import random
 
 class LivingEntity:
     def __init__(self, location, cloning_rate, death_rate, mutation_rate):
+        global count, entities, unusedSpace, spawnrate, img
         self.location = location
         self.isDead = False
         self.cloning_rate = cloning_rate
         self.death_rate = death_rate
         self.mutation_rate = mutation_rate
-        self.color = f"#{int(cloning_rate/3.95):02x}{int(death_rate/3.95):02x}{int(mutation_rate/3.95):02x}"
+        self.color = f"#{round(cloning_rate/3.95):02x}{round(death_rate/3.95):02x}{round(mutation_rate/3.95):02x}"
 
     
 
     def try_clone(self):
+        global count, entities, unusedSpace, spawnrate, img
+        if not unusedSpace:
+            return 
         if self.isDead: return 
         if random.randint(0,1000) < self.cloning_rate:
-            newLocation = random.choice(UsedSpace)
-            UsedSpace.remove(newLocation)
+            newLocation = random.choice(unusedSpace)
+            unusedSpace.remove(newLocation)
 
             newEntity = LivingEntity(
                 newLocation,
@@ -28,10 +32,11 @@ class LivingEntity:
         return 
     
     def try_death(self):
+        global count, entities, unusedSpace, spawnrate, img
         if random.randint(0,1000) < self.death_rate:
             self.isDead = True
             entities.remove(self)
-            UsedSpace.append(self.location)
+            unusedSpace.append(self.location)
         
 
     def update(self):
@@ -39,13 +44,13 @@ class LivingEntity:
         self.try_clone()
 
 
-global UsedSpace
-global count
-global entities 
+global count, entities, unusedSpace, spawnrate, img
 
 newUsedSpace = [(x, y) for x in range(1001) for y in range(1001)]
+unusedSpace = newUsedSpace.copy()
 count = 0
-UsedSpace = newUsedSpace.copy()
+entities = []
+spawnrate = 10
 
 
 
@@ -65,11 +70,50 @@ canvas.create_image((500, 500), image=img, state="normal")
 
 img.put("black", to=(0, 0, w, h))
 
+def countColors():
+    colorCount = {}
+    for entity in entities:
+        color = entity.color
+        if color in colorCount:
+            colorCount[color] += 1
+        else:
+            colorCount[color] = 1
+    # Return the color with the highest count
+    return max(colorCount, key=colorCount.get) if colorCount else None
+
+
+
+
 
 def update():
+    
+    global count, entities, unusedSpace, spawnrate, img
+    print(f"Entities: {len(entities)} | Unused Space: {len(unusedSpace)} | Color: {countColors()} | Count: {count}")
+    img.put("black", to=(0, 0, w, h))
+    for entity in entities:
+        img.put(entity.color, to=(entity.location[0], entity.location[1], entity.location[0]+1, entity.location[1]+1))
 
+    if len(unusedSpace) > 0 and random.randint(0,1000) < spawnrate:
+        spawnLocation = random.choice(unusedSpace)
+        unusedSpace.remove(spawnLocation)
+        newEntity = LivingEntity(
+            location=spawnLocation,
+            cloning_rate=50,
+            death_rate=20,
+            mutation_rate=10
+        )
+        entities.append(newEntity)
+    for entity in entities:
+        entity.update()
 
     count += 1
-    root.after(100, update)
 
+def UpdateCall():
+    try:
+        update()
+    except Exception as e:
+        print(f"Error during update: {e}")
+    root.after(50, UpdateCall)
+
+UpdateCall()
 root.mainloop()
