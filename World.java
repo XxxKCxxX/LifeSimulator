@@ -1,5 +1,8 @@
-import java.awt.*;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.awt.Color;
+import java.awt.Point;
+import java.util.Random;
 
 public class World {
     public final int WIDTH = 1000, HEIGHT = 1000;

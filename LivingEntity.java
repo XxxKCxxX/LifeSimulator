@@ -1,5 +1,7 @@
-import java.awt.*;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.awt.Color;
+import java.awt.Point;
 
 public class LivingEntity {
     public Point location;
