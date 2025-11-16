@@ -4,6 +4,7 @@ import javax.swing.Timer;
 
 
 public class main {
+    static int count = 0;
     public static void main(String[] args) {
         World world = new World();
         Renderer renderer = new Renderer(world);
@@ -14,11 +15,28 @@ public class main {
         frame.pack();
         frame.setVisible(true);
 
+        
+
         new Timer(1, e -> {
-            world.update();
+            world.updateDeath();
             renderer.repaint();
-            System.out.printf("Entities: %d | Free: %d%n",
-                world.entities.size(), world.unusedSpace.size());
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            world.updateCloning();
+            renderer.repaint();
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            count++;
+            System.out.printf("Entities: %d | Free: %d%n | Generation: %d%n",
+                world.entities.size(), world.unusedSpace.size(), count);
         }).start();
     }
 }

@@ -18,20 +18,21 @@ public class LivingEntity {
         this.deathRate = death;
         this.mutationRate = mutation;
         this.color = new Color(
-            Math.min(255, cloning / 4),
-            Math.min(255, death / 4),
-            Math.min(255, mutation / 4)
+            Math.min(255, Math.round(cloning / 3.92f)),
+            Math.min(255, Math.round(death / 3.92f)),
+            Math.min(255, Math.round(mutation / 3.92f))
         );
     }
 
-    public void update(List<LivingEntity> newEntities, List<Point> unusedSpace, Random rand) {
+    public void updateDeath(List<LivingEntity> newEntities, List<Point> unusedSpace, Random rand) {
         if (rand.nextInt(1000) < deathRate) {
             isDead = true;
             unusedSpace.add(location);
-            return;
+            
         }
-
-        if (rand.nextInt(1000) < cloningRate && !unusedSpace.isEmpty()) {
+    }
+    public void updateCloning (List<LivingEntity> newEntities, List<Point> unusedSpace, Random rand) {
+        if (rand.nextInt(1000) < cloningRate && newEntities.size() < 1000000) {
             Point newLoc = unusedSpace.remove(rand.nextInt(unusedSpace.size()));
             LivingEntity child = new LivingEntity(
                 newLoc,
@@ -44,6 +45,6 @@ public class LivingEntity {
     }
 
     private int clamp(int val) {
-        return Math.max(5, Math.min(1000, val));
+        return Math.max(20, Math.min(1000, val));
     }
 }
